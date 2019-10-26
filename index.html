@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>My App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui" charset=utf-8>
+    <link rel="stylesheet" href="app.min.css">
+    <style>
+      
+
+        
+    </style>
+  </head>
+
+  <body>
+    <div class="app-page" data-page="home">
+      <div class="app-topbar">
+        <div class="app-title">Home page</div>
+      </div>
+      <div class="app-content">
+          <p class="app-section">
+					Klicke unten um eine Email zu verschicken!
+				</p>
+          
+    <div class="app-section" id="contact-list">
+      
+      </div><div class="app-section">
+      <div class="app-button" id="new-user">Sende an neuen Nutzer</div>
+      
+      </div>
+          
+        
+        
+        
+        
+        </div>
+      </div>
+      
+      <div class="app-page" data-page="sendemail">
+			<div class="app-topbar">
+				<div class="app-title">Email Senden</div>
+				<div class="right app-button" data-back>Zurück</div>
+			</div>
+
+			<div class="app-content">
+                
+                <div class="app-section" id="message">
+                    
+				</div>
+
+				<div class="app-section">
+                    Von:
+					<input class="app-input" placeholder="Versender Email" id= "sender-email">
+				</div>
+                
+                <div class="app-section">
+                    An:
+					<input class="app-input" placeholder="Empfänger Email" id= "recipient-email">
+				</div>
+
+				<form class="app-section">
+					<input class="app-input" name="subject" placeholder="Betreff" id="subject">
+					<textarea class="app-input" name="message" placeholder="Inhalt" id="content"></textarea>
+					<div class="app-button green app-submit" id="send-button">Versenden</div>
+				</form>
+			</div>
+		</div>
+
+
+ 
+ 
+    <script src="zepto.js"></script>
+    <script src="app.min.js"></script>
+    <script>
+        
+       
+        
+        
+        
+      App.controller('home', function (page) {
+          
+          if(typeof localStorage !== 'undefined'){
+              
+              $(page).find("#new-user").clickable().click(function(){
+                  
+                 if(localStorage.getItem("recipient-email") !== null){
+                  
+                  localStorage.removeItem("recipient-email");
+                 }
+                  
+                  App.load("sendemail");
+                  
+              });
+              
+            
+              if(localStorage.getItem("recipient-list") !== null){
+                       
+                       recipientList = JSON.parse(localStorage.getItem("recipient-list"));
+                    
+                        $.each(recipientList, function(index, value){
+                            
+                            $(page).find("#contact-list").append('<div class="app-button redirect">' + value + '</div>');                   
+                            
+                            
+                        });
+                  
+                        $(page).find("#contact-list").show();
+                  
+                        $(page).find(".redirect").clickable().on("click", function(){
+                            
+                            
+                            
+                            localStorage.setItem("recipient-email", $(this).html());
+
+                            App.load('sendemail');
+                        });
+                  
+                  
+                  
+                  
+                  
+                }else{
+                    
+                    $(page).find("#contact-list").hide();
+                    
+                }
+          
+          
+          }
+      });
+
+      App.controller('sendemail', function (page) {
+          
+          $(page).find("#message").hide();
+          
+          
+          if(typeof localStorage !== 'undefined'){
+              
+              if(localStorage.getItem("sender-email") !== null){
+                  
+                  $(page).find("#sender-email").val(localStorage.getItem("sender-email"));
+                  
+                  
+              }
+              
+              if(localStorage.getItem("recipient-email") !== null){
+                  
+                  $(page).find("#recipient-email").val(localStorage.getItem("recipient-email"));
+                  
+                  
+              }
+                          
+          }
+          
+          $(page).find('#send-button').clickable().on('click', function(){
+              
+              //alert("test" + this);
+              
+              $.ajax({
+              type: 'GET',
+              url: 'https://kurswebseite.majogames.de/sendmail/sendemail.php?callback=response',
+              //url: 'http://derkomplettewebentwickler.16mb.com/mobile/sendemail.php?callback=response',
+              // data to be added to query string:
+              data: { to: $("#recipient-email").val(), from: $("#sender-email").val(), subject: $("#subject").val() , content: $("#content").val()  },
+              // type of data we are expecting in return:
+              dataType: 'jsonp',
+              timeout: 300,
+              context: $('body'),
+              success: function(data){
+                    
+                  alert("Succ_alert" + data);
+                  
+                  if(data.success == true){
+                      
+                      alert("Succt_alert" + data);
+                      $(page).find("#message").html("Deine Email wurde erfolgreiche versandt").show();
+                      
+                  }else{
+                      
+                      alert("Succf_alert" + data);
+                      $(page).find("#message").html("Deine Email konnte nicht versendet werden- versuche es später noch einmal.").show();
+                      
+                  }
+                  
+                  
+              },
+              error: function(xhr, type){
+                
+                  alert("err_xhralert" + xhr);
+                  alert("err_typealert" +type);
+                  $(page).find("#message").html("Deine Email konnte nicht versendet werden- versuche es später noch einmal.").show();
+                  
+              }
+            })
+              
+               if(typeof localStorage !== 'undefined'){
+                
+                   localStorage.setItem("sender-email", $("#sender-email").val());
+                   
+                   var recipientList = new Array();
+                   
+                   if(localStorage.getItem("recipient-list") !== null){
+                       
+                       recipientList = JSON.parse(localStorage.getItem("recipient-list"));
+                       
+                   }
+                   
+                   if ($.inArray($("#recipient-email").val(), recipientList) == -1){
+                       
+                       recipientList.push($("#recipient-email").val());
+                       
+                       recipientList.sort();
+                       
+                       localStorage.setItem("recipient-list", JSON.stringify(recipientList));
+                       
+                       console.log(recipientList);
+                   }
+                   
+
+                   
+               }else{
+                   
+                   // Alert dass daten nicht gespeichert werden können
+                   
+               }
+              
+          });
+          
+       
+      });
+        
+      try {
+        App.restore();
+      } catch (err) {
+        App.load('home');
+      }
+    </script>
+  </body>
+</html>
