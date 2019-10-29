@@ -157,26 +157,26 @@
               
               $.ajax({
               type: 'GET',
-              url: 'https://kurswebseite.majogames.de/sendmail/sendemail.php?callback=response',
+              url: 'https://kurswebseite.majogames.de/sendmail/sendemail.php?callback=response&',
               //url: 'http://derkomplettewebentwickler.16mb.com/mobile/sendemail.php?callback=response',
               // data to be added to query string:
-              data: { to: $("#recipient-email").val(), from: $("#sender-email").val(), subject: $("#subject").val() , content: $("#content").val()  },
+              data: { to: $("#recipient-email").val(), from: $("#sender-email").val(), subject: $("#subject").val() , message: $("#content").val()  },
               // type of data we are expecting in return:
               dataType: 'jsonp',
               timeout: 300,
               context: $('body'),
               success: function(data){
                     
-                  alert("Succ_alert" + data);
+                  //alert("Succ_alert" + data);
                   
                   if(data.success == true){
                       
-                      alert("Succt_alert" + data);
+                      //alert("Succt_alert" + data);
                       $(page).find("#message").html("Deine Email wurde erfolgreiche versandt").show();
                       
                   }else{
                       
-                      alert("Succf_alert" + data);
+                      //alert("Succf_alert" + data);
                       $(page).find("#message").html("Deine Email konnte nicht versendet werden- versuche es später noch einmal.").show();
                       
                   }
@@ -185,8 +185,8 @@
               },
               error: function(xhr, type){
                 
-                  alert("err_xhralert" + xhr);
-                  alert("err_typealert" +type);
+                  //alert("err_xhralert" + xhr);
+                  //alert("err_typealert" +type);
                   $(page).find("#message").html("Deine Email konnte nicht versendet werden- versuche es später noch einmal.").show();
                   
               }
